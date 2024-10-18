@@ -1,2 +1,2 @@
 # blog-postgre-backend
-Système de blog développé en postgre
+Système de blog développé avec le framework Express.JS et base de données PostgreSQL
