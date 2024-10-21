@@ -1,0 +1,47 @@
+DROP TABLE IF EXISTS customers;
+
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username varchar(40) NOT NULL,
+    email varchar(50)  NOT NULL UNIQUE,
+  
+    isActive boolean DEFAULT FALSE);
+
+
+    CREATE TABLE posts (
+    post_id SERIAL PRIMARY KEY,
+    title varchar(200),
+    content text,
+    timestamp timestamp default current_timestamp,
+    isDestroyed boolean DEFAULT FALSE,
+    isArchived boolean DEFAULT FALSE
+ 
+    );
+
+    CREATE TABLE comments (
+    comment_id SERIAL PRIMARY KEY,
+    title varchar(200),
+    content text,
+    timestamp timestamp default current_timestamp,
+    isDestroyed boolean DEFAULT FALSE,
+    isArchived boolean DEFAULT FALSE,
+    user_id int,
+    post_id int,
+    CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id),
+    CONSTRAINT fk_post FOREIGN KEY(post_id) REFERENCES posts(post_id)
+    );
+
+    ALTER TABLE posts ADD COLUMN user_id int;
+
+    ALTER TABLE posts ADD CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id);
+
+
+    CREATE TABLE posts_categories (
+    categorie_id SERIAL PRIMARY KEY,
+    title varchar(200),
+    description text,
+    isActive boolean DEFAULT TRUE
+    );
+
+    ALTER TABLE posts ADD COLUMN categorie_id int;
+    ALTER TABLE posts ADD CONSTRAINT fk_categorie FOREIGN KEY(categorie_id) REFERENCES posts_categories(categorie_id);
