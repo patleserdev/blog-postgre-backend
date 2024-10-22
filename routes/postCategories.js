@@ -61,11 +61,10 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
 
-  if (!checkBody(req.body, ['title', 'description','isActive'])) {
+  if (!checkBody(req.body, ['title', 'description'])) {
     res.json({ result: false, error: 'Champs vides ou invalides' });
     return;
   }
-
   var formattedTitle = encodeURI(req.body.title);
   var formattedDescription = encodeURI(req.body.description);
 
@@ -73,15 +72,15 @@ router.post("/", async (req, res) => {
 
     title :formattedTitle,
     description :formattedDescription,
-    isActive :req.body.isActive
+    isactive :req.body.isactive | false
   };
 
   const query =
-    "INSERT INTO posts_categories (title,description,isActive) VALUES ($1, $2,$3) RETURNING categorie_id;";
+    "INSERT INTO posts_categories (title,description,isactive) VALUES ($1, $2,$3) RETURNING categorie_id;";
   const values = [
     newComment.title,
     newComment.description,
-    newComment.isActive,
+    newComment.isactive,
   ];
 
   try {

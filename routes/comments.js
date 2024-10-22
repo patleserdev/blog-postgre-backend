@@ -123,7 +123,7 @@ router.get("/byuser/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
 
-  if (!checkBody(req.body, ['title', 'content'])) {
+  if (!checkBody(req.body, ['title', 'content','user_id','post_id'])) {
     res.json({ result: false, error: 'Champs vides ou invalides' });
     return;
   }
@@ -131,16 +131,18 @@ router.post("/", async (req, res) => {
   var formattedTitle = encodeURI(req.body.title);
   var formattedContent = encodeURI(req.body.content);
 
-  const user = Number(req.body.user);
-  if (typeof user != "number") {
+  const user = Number(req.body.user_id);
+
+  if (typeof user != "number" || typeof user == 'nan') {
     return res.json({
       result: false,
       error: "L'identifiant User est incohérent",
     });
   }
 
-  const post = Number(req.body.post);
-  if (typeof post != "number") {
+  const post = Number(req.body.post_id);
+
+  if (typeof post != "number" || typeof post == 'nan') {
     return res.json({
       result: false,
       error: "L'identifiant Post est incohérent",
@@ -307,10 +309,10 @@ router.delete("/:id", async (req, res) => {
     {
       return res.json({result:false,error: "L'identifiant est invalide"})
     }
-
+    console.log(id)
   try {
     const datas = await client.query(`
-         DELETE FROM posts WHERE post_id = ${id};`);
+         DELETE FROM comments WHERE comment_id = ${id}`);
     if (datas.rowCount == 1) {
       res.json({ result: true, message: "Post supprimé" });
     } else {

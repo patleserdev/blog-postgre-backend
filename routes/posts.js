@@ -4,6 +4,9 @@ const {checkId} = require("../modules/checkId")
 const {checkBody} = require("../modules/checkBody")
 const client = require("../db");
 
+const fs = require("fs");
+const cloudinary = require("cloudinary").v2;
+
 /**
  *  get all posts
  */
@@ -71,12 +74,13 @@ router.post("/", async (req, res) => {
   const newPost = {
     title: formattedTitle,
     content: formattedContent,
-    categorie:req.body.categorie
+    categorie:req.body.categorie,
+    picture_url:req.body.picture_url
   };
 
   const query =
-    "INSERT INTO posts (title,content,categorie_id,isDestroyed,isArchived) VALUES ($1, $2,$3, DEFAULT, DEFAULT) RETURNING post_id;";
-  const values = [newPost.title, newPost.content,newPost.categorie];
+    "INSERT INTO posts (title,content,categorie_id,isDestroyed,isArchived,picture_url) VALUES ($1, $2,$3, DEFAULT, DEFAULT,$4) RETURNING post_id;";
+  const values = [newPost.title, newPost.content,newPost.categorie,newPost.picture_url];
 
   try {
     const datas = await client.query(query, values);
@@ -93,6 +97,42 @@ router.post("/", async (req, res) => {
   //  finally {
   //     await client.end()
   //  }
+});
+
+/**
+ *    permet d'ajouter un fichier stocké dans cloudinary
+ */
+// ${URL}/protected/addfile
+router.post("/addfile", (req, res) => {
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).send({ message: "No files were uploaded." });
+  }
+
+  let uploadedFile = req.files.file;
+  // Uploader directement depuis le buffer du fichier
+  cloudinary.uploader
+    .upload_stream(
+      {
+        folder: "blog",
+        resource_type: "auto",
+        transformation: [{ aspect_ratio: "1.0", height: 800, crop: "fit" }],
+      },
+      (error, result) => {
+        if (error) {
+          return res
+            .status(500)
+            .send({ error: "Failed to upload to Cloudinary", details: error });
+        }
+        // console.log('resultCloudinary',result)
+        res.json({
+          result: true,
+          url: result.secure_url,
+          publicid: result.public_id,
+        });
+      }
+    )
+    .end(uploadedFile.data); // Envoyer le buffer directement à Cloudinary
+
 });
 
 /**
