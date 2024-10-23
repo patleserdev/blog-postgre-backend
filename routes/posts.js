@@ -59,28 +59,61 @@ router.get("/:id", async (req, res) => {
 });
 
 /**
+ * Get one post
+ */
+
+router.get("/bycategory/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  // Check id is a number
+  const isValid=checkId(id)
+  if(!isValid)
+  {
+    return res.json({result:false,error: "L'identifiant est invalide"})
+  }
+
+  try {
+    const datas = await client.query(`
+         SELECT * FROM posts WHERE categorie_id=${req.params.id};
+         `);
+    if (datas.rows.length > 0) {
+      res.json({ result: true, data: datas.rows });
+    } else {
+      res.json({ result: false, message: "Pas de données" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.json({ result: false, error: err.detail });
+  }
+  //  finally {
+  //     await client.end()
+  //  }
+});
+
+/**
  * Post post
  */
 
 router.post("/", async (req, res) => {
+  console.log(req.body)
 
-  if (!checkBody(req.body, ['title','content','categorie'])) {
+  if (!checkBody(req.body, ['title','content','categorie_id'])) {
     res.json({ result: false, error: 'Champs vides ou invalides' });
     return;
   }
 
-  var formattedTitle = encodeURI(req.body.title);
-  var formattedContent = encodeURI(req.body.content);
+  var formattedTitle = encodeURI(decodeURI(req.body.title));
+  var formattedContent = encodeURI(decodeURI(req.body.content));
   const newPost = {
     title: formattedTitle,
     content: formattedContent,
-    categorie:req.body.categorie,
-    picture_url:req.body.picture_url
+    categorie:req.body.categorie_id,
+    picture_url:req.body.picture_url,
+    public_id:req.body.public_id
   };
 
   const query =
-    "INSERT INTO posts (title,content,categorie_id,isDestroyed,isArchived,picture_url) VALUES ($1, $2,$3, DEFAULT, DEFAULT,$4) RETURNING post_id;";
-  const values = [newPost.title, newPost.content,newPost.categorie,newPost.picture_url];
+    "INSERT INTO posts (title,content,categorie_id,isDestroyed,isArchived,picture_url,public_id) VALUES ($1, $2,$3, DEFAULT, DEFAULT,$4,$5) RETURNING post_id;";
+  const values = [newPost.title, newPost.content,newPost.categorie,newPost.picture_url,newPost.public_id];
 
   try {
     const datas = await client.query(query, values);
@@ -139,8 +172,8 @@ router.post("/addfile", (req, res) => {
  * Put post
  */
 router.put("/:id", async (req, res) => {
-
-  if (!checkBody(req.body, ['title','content'])) {
+console.log(req.body)
+  if (!checkBody(req.body, ['title','content','categorie_id'])) {
     res.json({ result: false, error: 'Champs vides ou invalides' });
     return;
   }
@@ -153,12 +186,12 @@ router.put("/:id", async (req, res) => {
     return res.json({result:false,error: "L'identifiant est invalide"})
   }
 
-  var formattedTitle = encodeURI(req.body.title);
-  var formattedContent = encodeURI(req.body.content);
+  var formattedTitle = encodeURI(decodeURI(req.body.title));
+  var formattedContent = encodeURI(decodeURI(req.body.content));
   const editPost = {
     title: formattedTitle,
     content: formattedContent,
-    categorie:req.body.categorie
+    categorie:req.body.categorie_id
   };
 
   const query = `UPDATE posts SET title = $1 , content = $2 , categorie_id = $3 WHERE post_id = ${id};`;
@@ -259,6 +292,28 @@ router.delete("/:id", async (req, res) => {
   if(!isValid)
   {
     return res.json({result:false,error: "L'identifiant est invalide"})
+  }
+  
+  try {
+  const response = await client.query(`SELECT * FROM posts WHERE post_id = ${id};`);
+
+ 
+  if(response)
+  {
+
+  
+    cloudinary.uploader
+    .destroy(response.rows[0].public_id)
+    .then((result) => console.log(result));
+  }
+  
+    // cloudinary.uploader.destroy(picture, function(result) { console.log('cloudinary output',result) });
+ 
+  }
+  catch (err) 
+  {
+    console.error(err);
+    res.json({ result: false, error: err.detail });
   }
 
   try {
