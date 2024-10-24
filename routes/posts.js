@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
 
   try {
     const datas = await client.query(`
-         SELECT * FROM posts WHERE post_id=${req.params.id};
+         SELECT posts_categories.title as categorie,posts.title,content,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id WHERE post_id=${req.params.id};
          `);
     if (datas.rows.length > 0) {
       res.json({ result: true, data: datas.rows });
@@ -186,19 +186,44 @@ console.log(req.body)
     return res.json({result:false,error: "L'identifiant est invalide"})
   }
 
+  if(req.body.picture_url && req.body.public_id)
+  {
+  //contrôler si l'image est différente 
+  const query = `SELECT public_id FROM posts WHERE post_id = $1`;
+  const values = [id];
+  const checkPicture = await client.query(query, values);
+  console.log(checkPicture)
+  if (checkPicture && checkPicture.rowCount != 0)
+  {
+    if(checkPicture.rows[0].public_id != req.body.public_id )
+    {
+      await cloudinary.uploader
+      .destroy(checkPicture.rows[0].public_id)
+      .then((result) => console.log(result));
+    }
+  }
+  // si différente, remove l'ancienne de cloudinary
+  // cloudinary.uploader
+  // .destroy(response.rows[0].public_id)
+  // .then((result) => console.log(result));
+  }
+
   var formattedTitle = encodeURI(decodeURI(req.body.title));
   var formattedContent = encodeURI(decodeURI(req.body.content));
   const editPost = {
     title: formattedTitle,
     content: formattedContent,
-    categorie:req.body.categorie_id
+    categorie:req.body.categorie_id,
+    picture_url:req.body.picture_url,
+    public_id:req.body.public_id
   };
-
-  const query = `UPDATE posts SET title = $1 , content = $2 , categorie_id = $3 WHERE post_id = ${id};`;
-  const values = [editPost.title, editPost.content,editPost.categorie];
+ 
+  const query = `UPDATE posts SET title = $1 , content = $2 , categorie_id = $3,picture_url = $4,public_id = $5 WHERE post_id = ${id};`;
+  const values = [editPost.title, editPost.content,editPost.categorie,editPost.picture_url,editPost.public_id];
   try {
-    const datas = await client.query(query, values);
-
+    
+   const datas = await client.query(query, values);
+   
     if (datas.rowCount == 1) {
       res.json({ result: true, message: "Post modifié" });
     } else {
@@ -300,8 +325,6 @@ router.delete("/:id", async (req, res) => {
  
   if(response)
   {
-
-  
     cloudinary.uploader
     .destroy(response.rows[0].public_id)
     .then((result) => console.log(result));
