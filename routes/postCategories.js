@@ -117,15 +117,16 @@ router.put("/:id", async (req, res) => {
       return res.json({result:false,error: "L'identifiant est invalide"})
     }
 
-  var formattedTitle = encodeURI(req.body.title);
-  var formattedDescription = encodeURI(req.body.description);
+  var formattedTitle = req.body.title;
+  var formattedDescription = req.body.description;
   const editPost = {
     title: formattedTitle,
     description: formattedDescription,
+    isactive :req.body.isactive
   };
 
-  const query = `UPDATE posts_categories SET title = $1 , description = $2 WHERE categorie_id = ${id};`;
-  const values = [editPost.title, editPost.description];
+  const query = `UPDATE posts_categories SET title = $1 , description = $2 , isactive = $3  WHERE categorie_id = ${id};`;
+  const values = [editPost.title, editPost.description,editPost.isactive];
   try {
     const datas = await client.query(query, values);
 

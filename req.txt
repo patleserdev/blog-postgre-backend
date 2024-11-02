@@ -45,3 +45,7 @@ CREATE TABLE users (
 
     ALTER TABLE posts ADD COLUMN categorie_id int;
     ALTER TABLE posts ADD CONSTRAINT fk_categorie FOREIGN KEY(categorie_id) REFERENCES posts_categories(categorie_id);
+    ALTER TABLE posts ADD COLUMN picture_url varchar(200); 
+    ALTER TABLE posts ADD COLUMN public_id varchar(200);
+
+    ALTER TABLE users ADD COLUMN timestamp timestamp default current_timestamp;
