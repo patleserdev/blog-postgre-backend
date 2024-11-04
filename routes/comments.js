@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
-const {checkId} = require("../modules/checkId")
-const {checkBody} = require("../modules/checkBody")
+const { checkId } = require("../modules/checkId");
+const { checkBody } = require("../modules/checkBody");
 const client = require("../db");
 /**
  *  get all comments
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.json({ result: false, error: err.detail });
-  } 
+  }
   // finally {
   //   await client.end();
   // }
@@ -27,24 +27,23 @@ router.get("/", async (req, res) => {
  * Get one comment
  */
 router.get("/:id", async (req, res) => {
-  
   const id = Number(req.params.id);
   // Check id is a number
-  const isValid=checkId(id)
-  if(!isValid)
-  {
-    return res.json({result:false,error: "L'identifiant est invalide"})
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
   }
 
   try {
-    const datas = await client.query(`SELECT * FROM comments WHERE comment_id=${id};`);
+    const datas = await client.query(
+      `SELECT * FROM comments WHERE comment_id=${id};`
+    );
     if (datas.rows.length > 0) {
       res.json({ result: true, data: datas.rows });
     } else {
       res.json({ result: false, message: "Pas de données" });
     }
-  } catch (err) 
-  {
+  } catch (err) {
     console.error(err);
     res.json({ result: false, error: err.detail });
   }
@@ -58,13 +57,11 @@ router.get("/:id", async (req, res) => {
  * id = post_id
  */
 router.get("/bypost/:id", async (req, res) => {
-
   const id = Number(req.params.id);
   // Check id is a number
-  const isValid=checkId(id)
-  if(!isValid)
-  {
-    return res.json({result:false,error: "L'identifiant est invalide"})
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
   }
 
   try {
@@ -86,17 +83,56 @@ router.get("/bypost/:id", async (req, res) => {
 });
 
 /**
+ * Get all comments for a post with username
+ * id = post_id
+ */
+router.get("/bypostandusername/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  // Check id is a number
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
+  }
+
+  /*datas
+  
+  comment_id
+  content
+  isarchived
+  isdestroyed
+  post_id
+  timestamp
+  title
+  user_id
+  */
+  try {
+        const datas = await client.query(`
+            SELECT users.username, comment_id,content,comments.isarchived,comments.isdestroyed,comments.timestamp,title FROM comments INNER JOIN users ON comments.user_id = users.user_id WHERE post_id=${id};
+            `);
+       if (datas.rows.length > 0) {
+      res.json({ result: true, data: datas.rows });
+    } else {
+      res.json({ result: false, message: "Pas de données" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.json({ result: false, error: err.detail });
+  }
+  //  finally {
+  //     await client.end()
+  //  }
+});
+
+/**
  * Get all comments for an user
  * id = user_id
  */
 router.get("/byuser/:id", async (req, res) => {
-
   const id = Number(req.params.id);
   // Check id is a number
-  const isValid=checkId(id)
-  if(!isValid)
-  {
-    return res.json({result:false,error: "L'identifiant est invalide"})
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
   }
 
   try {
@@ -122,9 +158,8 @@ router.get("/byuser/:id", async (req, res) => {
  */
 
 router.post("/", async (req, res) => {
-
-  if (!checkBody(req.body, ['title', 'content','user_id','post_id'])) {
-    res.json({ result: false, error: 'Champs vides ou invalides' });
+  if (!checkBody(req.body, ["title", "content", "user_id", "post_id"])) {
+    res.json({ result: false, error: "Champs vides ou invalides" });
     return;
   }
 
@@ -133,7 +168,7 @@ router.post("/", async (req, res) => {
 
   const user = Number(req.body.user_id);
 
-  if (typeof user != "number" || typeof user == 'nan') {
+  if (typeof user != "number" || typeof user == "nan") {
     return res.json({
       result: false,
       error: "L'identifiant User est incohérent",
@@ -142,7 +177,7 @@ router.post("/", async (req, res) => {
 
   const post = Number(req.body.post_id);
 
-  if (typeof post != "number" || typeof post == 'nan') {
+  if (typeof post != "number" || typeof post == "nan") {
     return res.json({
       result: false,
       error: "L'identifiant Post est incohérent",
@@ -186,18 +221,16 @@ router.post("/", async (req, res) => {
  * Put comment
  */
 router.put("/:id", async (req, res) => {
-
-  if (!checkBody(req.body, ['title','content'])) {
-    res.json({ result: false, error: 'Champs vides ou invalides' });
+  if (!checkBody(req.body, ["title", "content"])) {
+    res.json({ result: false, error: "Champs vides ou invalides" });
     return;
   }
-    const id = Number(req.params.id);
-    // Check id is a number
-    const isValid=checkId(id)
-    if(!isValid)
-    {
-      return res.json({result:false,error: "L'identifiant est invalide"})
-    }
+  const id = Number(req.params.id);
+  // Check id is a number
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
+  }
 
   var formattedTitle = encodeURI(req.body.title);
   var formattedContent = encodeURI(req.body.content);
@@ -229,14 +262,12 @@ router.put("/:id", async (req, res) => {
  *    update if comment is destroy
  * */
 router.put("/isdestroyed/:id", async (req, res) => {
-
-    const id = Number(req.params.id);
-    // Check id is a number
-    const isValid=checkId(id)
-    if(!isValid)
-    {
-      return res.json({result:false,error: "L'identifiant est invalide"})
-    }
+  const id = Number(req.params.id);
+  // Check id is a number
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
+  }
 
   try {
     const datas = await client.query(`
@@ -265,14 +296,12 @@ router.put("/isdestroyed/:id", async (req, res) => {
  *    update if comment is archived
  * */
 router.put("/isarchived/:id", async (req, res) => {
-
-    const id = Number(req.params.id);
-    // Check id is a number
-    const isValid=checkId(id)
-    if(!isValid)
-    {
-      return res.json({result:false,error: "L'identifiant est invalide"})
-    }
+  const id = Number(req.params.id);
+  // Check id is a number
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
+  }
 
   try {
     const datas = await client.query(`
@@ -301,15 +330,13 @@ router.put("/isarchived/:id", async (req, res) => {
  * Delete comment
  */
 router.delete("/:id", async (req, res) => {
-
   const id = Number(req.params.id);
-    // Check id is a number
-    const isValid=checkId(id)
-    if(!isValid)
-    {
-      return res.json({result:false,error: "L'identifiant est invalide"})
-    }
-    console.log(id)
+  // Check id is a number
+  const isValid = checkId(id);
+  if (!isValid) {
+    return res.json({ result: false, error: "L'identifiant est invalide" });
+  }
+  console.log(id);
   try {
     const datas = await client.query(`
          DELETE FROM comments WHERE comment_id = ${id}`);

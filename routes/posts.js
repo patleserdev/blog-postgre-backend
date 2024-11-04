@@ -12,7 +12,7 @@ const cloudinary = require("cloudinary").v2;
  */
 router.get("/", async (req, res) => {
   try {
-    const datas = await client.query("SELECT * FROM posts");
+    const datas = await client.query("SELECT posts_categories.title as categorie_id,posts.title,content,isarchived,isdestroyed,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id");
     if (datas.rows.length > 0) {
       res.json({ result: true, data: datas.rows });
     } else {
@@ -193,7 +193,7 @@ console.log(req.body)
   const values = [id];
   const checkPicture = await client.query(query, values);
   console.log(checkPicture)
-  if (checkPicture && checkPicture.rowCount != 0)
+  if (checkPicture && checkPicture.rowCount != 0 && checkPicture.rows[0].public_id != null)
   {
     if(checkPicture.rows[0].public_id != req.body.public_id )
     {
@@ -201,6 +201,7 @@ console.log(req.body)
       .destroy(checkPicture.rows[0].public_id)
       .then((result) => console.log(result));
     }
+    
   }
   // si différente, remove l'ancienne de cloudinary
   // cloudinary.uploader
