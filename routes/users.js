@@ -69,11 +69,12 @@ router.post("/", async (req, res) => {
   const newUser = {
     username: req.body.username,
     email: req.body.email,
+    isactive:req.body.isactive
   };
 
   try {
     const datas = await client.query(`
-         INSERT INTO users (username,email,timestamp,isActive) VALUES ('${newUser.username}','${newUser.email}',DEFAULT,DEFAULT);
+         INSERT INTO users (username,email,timestamp,isactive) VALUES ('${newUser.username}',DEFAULT,'${newUser.isactive}');
          `);
     if (datas.rowCount == 1) {
       res.json({ result: true, message: "Utilisateur ajouté" });
@@ -94,7 +95,7 @@ router.post("/", async (req, res) => {
  */
 router.put("/:id", async (req, res) => {
 
-  if (!checkBody(req.body, ['username'])) {
+  if (!checkBody(req.body, ['username','email'])) {
     res.json({ result: false, error: 'Champs vides ou invalides' });
     return;
   }
@@ -109,11 +110,13 @@ router.put("/:id", async (req, res) => {
 
   const editUser = {
     username: req.body.username,
+    email: req.body.email.toLowerCase(),
+    isactive: req.body.isactive,
   };
 
   try {
     const datas = await client.query(`
-         UPDATE users SET username = '${editUser.username}' WHERE user_id = ${id};`);
+         UPDATE users SET username = '${editUser.username}',email = '${editUser.email}',isactive =  '${editUser.isactive}' WHERE user_id = ${id};`);
     if (datas.rowCount == 1) {
       res.json({ result: true, message: "Utilisateur modifié" });
     } else {

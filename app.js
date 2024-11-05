@@ -11,8 +11,18 @@ var commentsRouter = require('./routes/comments');
 var postCategoriesRouter = require('./routes/postCategories');
 // const client = require ('./db')
 const fileUpload = require('express-fileupload');
+
+// Configuration CORS
+const corsOptions = {
+    origin: 'https://blog-postgre-frontend.vercel.app',
+    // origin: ['http://localhost:3001'],
+    // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    // credentials: true,  // Permettre l'envoi des cookies ou des headers d'authentification
+    optionsSuccessStatus: 200
+  };
+
 var app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
