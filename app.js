@@ -18,10 +18,10 @@ var app = express();
 app.use(fileUpload());
 // Configuration CORS
 const corsOptions = {
-  origin: 'https://blog-postgre-frontend.vercel.app/',
+  origin: ['https://blog-postgre-frontend.vercel.app','http://localhost:3001'],
   // origin: ['http://localhost:3001'],
   // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  // credentials: true,  // Permettre l'envoi des cookies ou des headers d'authentification
+  credentials: true,  // Permettre l'envoi des cookies ou des headers d'authentification
   optionsSuccessStatus: 200
 };
 
