@@ -12,6 +12,9 @@ var postCategoriesRouter = require('./routes/postCategories');
 // const client = require ('./db')
 const fileUpload = require('express-fileupload');
 
+
+
+var app = express();
 // Configuration CORS
 const corsOptions = {
     origin: 'https://blog-postgre-frontend.vercel.app',
@@ -20,8 +23,6 @@ const corsOptions = {
     // credentials: true,  // Permettre l'envoi des cookies ou des headers d'authentification
     optionsSuccessStatus: 200
   };
-
-var app = express();
 app.use(cors(corsOptions));
 app.use(logger('dev'));
 app.use(express.json());
