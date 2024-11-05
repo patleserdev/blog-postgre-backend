@@ -18,7 +18,7 @@ var app = express();
   // Configuration CORS
 
   const corsOptions = {
-    origin: ['https://blog-postgre-frontend.vercel.app'], 
+    origin: 'https://blog-postgre-frontend.vercel.app/', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     optionsSuccessStatus: 200 
 };
