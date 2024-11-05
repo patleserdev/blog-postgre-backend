@@ -18,7 +18,7 @@ var app = express();
 app.use(fileUpload());
 // Configuration CORS
 const corsOptions = {
-  origin: ['https://blog-postgre-frontend-git-main-patleserdevs-projects.vercel.app','http://localhost:3001'],
+  origin: ['https://blog-postgre-frontend.vercel.app','http://localhost:3001'],
   // origin: ['http://localhost:3001'],
   // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   methods: ['GET', 'POST', 'OPTIONS'], // allowed HTTP methods
