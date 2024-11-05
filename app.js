@@ -21,6 +21,8 @@ const corsOptions = {
   origin: ['https://blog-postgre-frontend.vercel.app','http://localhost:3001'],
   // origin: ['http://localhost:3001'],
   // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  methods: ['GET', 'POST', 'OPTIONS'], // allowed HTTP methods
+  allowedHeaders: ['Content-Type'], // allowed headers in requests
   credentials: true,  // Permettre l'envoi des cookies ou des headers d'authentification
   optionsSuccessStatus: 200
 };
@@ -33,6 +35,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.options('/postcategories', cors()); // handles preflight for this route specifically
 
 app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
