@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
 
   try {
     const datas = await client.query(`
-         SELECT posts_categories.title as categorie,posts.title,content,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id WHERE post_id=${req.params.id};
+         SELECT posts_categories.title as categorie,posts_categories.categorie_id as categorie_id,posts.title,content,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id WHERE post_id=${req.params.id};
          `);
     if (datas.rows.length > 0) {
       res.json({ result: true, data: datas.rows });
