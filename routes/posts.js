@@ -28,6 +28,26 @@ router.get("/", async (req, res) => {
 });
 
 /**
+ *  get last post
+ */
+router.get("/last", async (req, res) => {
+  try {
+    const datas = await client.query("SELECT posts_categories.title as categorie_id,posts.title,content,isarchived,isdestroyed,picture_url,post_id,timestamp FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id ORDER BY posts.timestamp DESC LIMIT 4");
+    if (datas.rows.length > 0) {
+      return res.json({ result: true, data: datas.rows });
+    } else {
+      return res.json({ result: false, message: "Pas de données" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.json({ result: false, error: err.detail });
+  } 
+  // finally {
+  //   await client.end();
+  // }
+});
+
+/**
  * Get one post
  */
 
