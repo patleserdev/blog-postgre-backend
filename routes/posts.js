@@ -12,7 +12,7 @@ const cloudinary = require("cloudinary").v2;
  */
 router.get("/", async (req, res) => {
   try {
-    const datas = await client.query("SELECT posts_categories.title as categorie_id,posts.title,content,isarchived,isdestroyed,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id");
+    const datas = await client.query("SELECT posts_categories.title as categorie_id,posts.title,content,isarchived,isdestroyed,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id ORDER BY post_id ASC ");
     if (datas.rows.length > 0) {
       res.json({ result: true, data: datas.rows });
     } else {

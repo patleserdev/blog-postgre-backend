@@ -8,7 +8,7 @@ const client = require("../db");
  */
 router.get("/", async (req, res) => {
   try {
-    const datas = await client.query("SELECT * FROM posts_categories");
+    const datas = await client.query("SELECT * FROM posts_categories ORDER BY title ASC");
     if (datas.rows.length > 0) {
       res.json({ result: true, data: datas.rows });
     } else {
