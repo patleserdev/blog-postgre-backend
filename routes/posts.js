@@ -12,7 +12,7 @@ const cloudinary = require("cloudinary").v2;
  */
 router.get("/", async (req, res) => {
   try {
-    const datas = await client.query("SELECT posts_categories.title as categorie_id,posts.title,content,isarchived,isdestroyed,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id ORDER BY post_id ASC ");
+    const datas = await client.query("SELECT posts_categories.categorie_id as categorie_id,posts_categories.title as categorie_title,posts.title,content,isarchived,isdestroyed,picture_url,post_id FROM posts INNER JOIN posts_categories ON posts.categorie_id = posts_categories.categorie_id ORDER BY post_id ASC ");
     if (datas.rows.length > 0) {
       res.json({ result: true, data: datas.rows });
     } else {
@@ -239,7 +239,7 @@ console.log(req.body)
     public_id:req.body.public_id
   };
  
-  const query = `UPDATE posts SET title = $1 , content = $2 , categorie_id = $3,picture_url = $4,public_id = $5 WHERE post_id = ${id};`;
+  const query = `UPDATE posts SET title = $1 , content = $2 , categorie_id = $3 ,picture_url = $4, public_id = $5 WHERE post_id = ${id};`;
   const values = [editPost.title, editPost.content,editPost.categorie,editPost.picture_url,editPost.public_id];
   try {
     
